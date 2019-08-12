@@ -8,6 +8,7 @@ import ServerInfoForm = require('./server-info-form');
 import AddCertificate = require('./add-certificate');
 import FindAccounts = require('./find-accounts');
 import t = require('../../utils/translation-util');
+import ConfigUtil = require('../../utils/config-util')
 
 class ConnectedOrgSection extends BaseSection {
 	// TODO: TypeScript - Here props should be object type
@@ -45,6 +46,7 @@ class ConnectedOrgSection extends BaseSection {
 		this.props.$root.innerHTML = '';
 
 		const servers = DomainUtil.getDomains();
+		const mutedOrganizations = ConfigUtil.getConfigItem('mutedOrganizations');
 		this.props.$root.innerHTML = this.template();
 
 		this.$serverInfoContainer = document.querySelector('#server-info-container');
@@ -62,6 +64,7 @@ class ConnectedOrgSection extends BaseSection {
 				$root: this.$serverInfoContainer,
 				server: servers[i],
 				index: i,
+				muteText: mutedOrganizations[servers[i].url] ? 'Unmute' : 'Mute',
 				onChange: this.reloadApp
 			}).init();
 		}

@@ -66,6 +66,7 @@ interface SettingsOptions {
 	flashTaskbarOnMessage?: boolean;
 	dockBouncing?: boolean;
 	loading?: AnyObject;
+	mutedOrganizations: any;
 }
 
 const rendererDirectory = path.resolve(__dirname, '..');
@@ -206,7 +207,8 @@ class ServerManagerView {
 				silent: false
 			},
 			downloadsPath: `${app.getPath('downloads')}`,
-			showDownloadFolder: false
+			showDownloadFolder: false,
+			mutedOrganizations: {}
 		};
 
 		// Platform specific settings
@@ -720,6 +722,8 @@ class ServerManagerView {
 	}
 
 	addContextMenu($serverImg: HTMLImageElement, index: number): void {
+		const mutedOrganizations = ConfigUtil.getConfigItem('mutedOrganizations');
+		const url = DomainUtil.getDomain(index).url;
 		$serverImg.addEventListener('contextmenu', e => {
 			e.preventDefault();
 			const template = [
@@ -739,6 +743,29 @@ class ServerManagerView {
 									const { title, content } = Messages.orgRemovalError(DomainUtil.getDomain(index).url);
 									dialog.showErrorBox(title, content);
 								}
+							}
+						});
+					}
+				},
+				{
+					label: (mutedOrganizations[url] ? 'Unmute' : 'Mute'),
+					click: () => {
+						dialog.showMessageBox({
+							type: 'warning',
+							buttons: ['YES', 'NO'],
+							defaultId: 0,
+							message: 'Are you sure you want to ' + (mutedOrganizations[url] ? 'unmute' : 'mute') + ' this organization?'
+						}, response => {
+							if (response === 0) {
+								if (mutedOrganizations[url]) {
+									// server is already muted
+									this.tabs[index].webview.updateBadgeCount(mutedOrganizations[url]);
+									delete mutedOrganizations[url];
+								} else {
+									mutedOrganizations[url] = this.tabs[index].webview.badgeCount;
+									this.tabs[index].webview.updateBadgeCount(0);
+								}
+								ConfigUtil.setConfigItem('mutedOrganizations', mutedOrganizations);
 							}
 						});
 					}
@@ -960,6 +987,20 @@ class ServerManagerView {
 
 		ipcRenderer.on('new-server', () => {
 			this.openSettings('AddServer');
+		});
+
+		ipcRenderer.on('mute-org', (event: Event, index: number) => {
+			const url = this.tabs[index].webview.props.url;
+			const mutedOrganizations = ConfigUtil.getConfigItem('mutedOrganizations');
+			if (mutedOrganizations[url]) {
+				// server is already muted
+				this.tabs[index].webview.updateBadgeCount(mutedOrganizations[url]);
+				delete mutedOrganizations[url];
+			} else {
+				mutedOrganizations[url] = this.tabs[index].webview.badgeCount;
+				this.tabs[index].webview.updateBadgeCount(0);
+			}
+			ConfigUtil.setConfigItem('mutedOrganizations', mutedOrganizations);
 		});
 	}
 }

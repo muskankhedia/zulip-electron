@@ -6,6 +6,7 @@ import BaseComponent = require('../../components/base');
 import DomainUtil = require('../../utils/domain-util');
 import Messages = require('./../../../../resources/messages');
 import t = require('../../utils/translation-util');
+const ConfigUtil = require('../../utils/config-util')
 
 const { dialog } = remote;
 
@@ -17,6 +18,7 @@ class ServerInfoForm extends BaseComponent {
 	$serverIcon: Element;
 	$deleteServerButton: Element;
 	$openServerButton: Element;
+	$muteServerButton: Element;
 	constructor(props: any) {
 		super();
 		this.props = props;
@@ -35,6 +37,10 @@ class ServerInfoForm extends BaseComponent {
 				<div class="server-info-right">
 					<div class="server-info-row server-url">
 						<span class="server-url-info" title="${this.props.server.url}">${this.props.server.url}</span>
+					</div>
+					<div class="server-info-row">
+						<div class="action gray server-mute-notifications">
+						<span>${this.props.muteText}</span>
 					</div>
 					<div class="server-info-row">
 						<div class="action red server-delete-action">
@@ -57,6 +63,7 @@ class ServerInfoForm extends BaseComponent {
 		this.$serverIcon = this.$serverInfoForm.querySelectorAll('.server-info-icon')[0];
 		this.$deleteServerButton = this.$serverInfoForm.querySelectorAll('.server-delete-action')[0];
 		this.$openServerButton = this.$serverInfoForm.querySelectorAll('.open-tab-button')[0];
+		this.$muteServerButton = this.$serverInfoForm.querySelectorAll('.server-mute-notificaions')[0];
 		this.props.$root.append(this.$serverInfoForm);
 	}
 
@@ -75,6 +82,29 @@ class ServerInfoForm extends BaseComponent {
 						const { title, content } = Messages.orgRemovalError(DomainUtil.getDomain(this.props.index).url);
 						dialog.showErrorBox(title, content);
 					}
+				}
+			});
+		});
+
+		this.$muteServerButton.addEventListener('click', () => {
+			dialog.showMessageBox({
+				type: 'warning',
+				buttons: ['YES', 'NO'],
+				defaultId: 0,
+				message: 'Are you sure you want to ' + this.props.muteText.toLowerCase() + ' this organization?'
+			}, response => {
+				if (response === 0) {
+					const url = this.props.server.url;
+					const muteLabel = this.props.$root.children[this.props.index].children[1].children[1].children[0];
+					const mutedOrganizations = ConfigUtil.getConfigItem('mutedOrganizations');
+					if (mutedOrganizations[url]) {
+						muteLabel.innerHTML = 'Mute';
+						this.props.muteText = 'Mute';
+					} else {
+						muteLabel.innerHTML = 'Unmute';
+						this.props.muteText = 'Unmute';
+					}
+					ipcRenderer.send('forward-message', 'mute-org', this.props.index);
 				}
 			});
 		});
