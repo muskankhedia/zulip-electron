@@ -17,6 +17,7 @@ class ServerInfoForm extends BaseComponent {
 	$serverIcon: Element;
 	$deleteServerButton: Element;
 	$openServerButton: Element;
+	$muteServerButton: Element;
 	constructor(props: any) {
 		super();
 		this.props = props;
@@ -35,6 +36,10 @@ class ServerInfoForm extends BaseComponent {
 				<div class="server-info-right">
 					<div class="server-info-row server-url">
 						<span class="server-url-info" title="${this.props.server.url}">${this.props.server.url}</span>
+					</div>
+					<div class="server-info-row">
+						<div class="action gray server-mute-notifications">
+						<span>${this.props.muteText}</span>
 					</div>
 					<div class="server-info-row">
 						<div class="action red server-delete-action">
@@ -89,6 +94,27 @@ class ServerInfoForm extends BaseComponent {
 
 		this.$serverIcon.addEventListener('click', () => {
 			ipcRenderer.send('forward-message', 'switch-server-tab', this.props.index);
+		});
+
+		this.$muteServerButton.addEventListener('click', () => {
+			dialog.showMessageBox({
+				type: 'warning',
+				buttons: ['YES', 'NO'],
+				defaultId: 0,
+				message: 'Are you sure you want to ' + this.props.muteText.toLowerCase() + ' this organization?'
+			}, response => {
+				if (response === 0) {
+					const muteLabel = this.props.$root.children[this.props.index].children[1].children[1].children[0];
+					if (DomainUtil.getDomain(this.props.index).muted) {
+						muteLabel.innerHTML = 'Unmute';
+						this.props.muteText = 'Unmute';
+					} else {
+						muteLabel.innerHTML = 'Mute';
+						this.props.muteText = 'Mute';
+					}
+					ipcRenderer.send('forward-message', 'mute-org', this.props.index);
+				}
+			});
 		});
 	}
 }
