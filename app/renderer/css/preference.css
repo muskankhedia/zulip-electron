@@ -331,16 +331,16 @@ img.server-info-icon {
 }
 
 .gray {
-    color: #9E9E9E;
+    color: rgb(158, 158, 158);
     padding: 8px;
     border: rgba(192, 192, 192, 0.3) solid 1px;
     border-radius: 4px;
-    border-color: #fff;
+    border-color: rgb(255, 255, 255);
 }
 
 .gray:hover {
     background-color: rgba(192, 192, 192, 0.3);
-    color: #fff;
+    color: rgb(255, 255, 255);
 }
 
 .red {

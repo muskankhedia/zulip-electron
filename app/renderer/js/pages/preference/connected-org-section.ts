@@ -8,7 +8,7 @@ import ServerInfoForm = require('./server-info-form');
 import AddCertificate = require('./add-certificate');
 import FindAccounts = require('./find-accounts');
 import t = require('../../utils/translation-util');
-import ConfigUtil = require('../../utils/config-util')
+import ConfigUtil = require('../../utils/config-util');
 
 class ConnectedOrgSection extends BaseSection {
 	// TODO: TypeScript - Here props should be object type

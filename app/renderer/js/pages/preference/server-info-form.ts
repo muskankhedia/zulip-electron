@@ -6,7 +6,7 @@ import BaseComponent = require('../../components/base');
 import DomainUtil = require('../../utils/domain-util');
 import Messages = require('./../../../../resources/messages');
 import t = require('../../utils/translation-util');
-const ConfigUtil = require('../../utils/config-util')
+import ConfigUtil = require('../../utils/config-util');
 
 const { dialog } = remote;
 
@@ -94,7 +94,7 @@ class ServerInfoForm extends BaseComponent {
 				message: 'Are you sure you want to ' + this.props.muteText.toLowerCase() + ' this organization?'
 			}, response => {
 				if (response === 0) {
-					const url = this.props.server.url;
+					const {url} = this.props.server.url;
 					const muteLabel = this.props.$root.children[this.props.index].children[1].children[1].children[0];
 					const mutedOrganizations = ConfigUtil.getConfigItem('mutedOrganizations');
 					if (mutedOrganizations[url]) {

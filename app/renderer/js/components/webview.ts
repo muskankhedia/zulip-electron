@@ -147,7 +147,7 @@ class WebView extends BaseComponent {
 		});
 	}
 
-	updateBadgeCount(count: number) {
+	updateBadgeCount(count: number): void {
 		this.badgeCount = count;
 		this.props.onTitleChange();
 	}

@@ -723,7 +723,7 @@ class ServerManagerView {
 
 	addContextMenu($serverImg: HTMLImageElement, index: number): void {
 		const mutedOrganizations = ConfigUtil.getConfigItem('mutedOrganizations');
-		const url = DomainUtil.getDomain(index).url;
+		const {url} = DomainUtil.getDomain(index).url;
 		$serverImg.addEventListener('contextmenu', e => {
 			e.preventDefault();
 			const template = [
@@ -990,7 +990,7 @@ class ServerManagerView {
 		});
 
 		ipcRenderer.on('mute-org', (event: Event, index: number) => {
-			const url = this.tabs[index].webview.props.url;
+			const {url} = this.tabs[index].webview.props.url;
 			const mutedOrganizations = ConfigUtil.getConfigItem('mutedOrganizations');
 			if (mutedOrganizations[url]) {
 				// server is already muted
